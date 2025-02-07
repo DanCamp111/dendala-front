@@ -3,23 +3,13 @@
         <v-layout>
             <v-app-bar color="primary">
                 <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-
-                <v-toolbar-title>My files</v-toolbar-title>
-
+                <v-toolbar-title>Clientes</v-toolbar-title>
                 <v-spacer></v-spacer>
-
-                <template v-if="$vuetify.display.mdAndUp">
-                    <v-btn icon="mdi-magnify" variant="text"></v-btn>
-
-                    <v-btn icon="mdi-filter" variant="text"></v-btn>
-                </template>
-
-                <v-btn icon="mdi-dots-vertical" variant="text"></v-btn>
             </v-app-bar>
 
-            <v-navigation-drawer v-model="drawer" :location="$vuetify.display.mobile ? 'bottom' : undefined" temporary>
+            <v-navigation-drawer v-model="drawer" temporary>
                 <v-list>
-                    <v-list-item v-for="(item, items) in items" :key="index" link @click="navigateTo(item.route)">
+                    <v-list-item v-for="(item, index) in items" :key="index" link @click="navigateTo(item.route)">
                         <v-list-item-title>{{ item.title }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
@@ -29,54 +19,45 @@
                 <v-card-text>
                     <v-card class="mx-auto" elevation="16" max-width="1000">
                         <v-card-item>
-                            <v-card-title>
-                                Registro
-                            </v-card-title>
-
-                            <v-card-subtitle>
-                                Card subtitle secondary text
-                            </v-card-subtitle>
+                            <v-card-title> Registro </v-card-title>
+                            <v-card-subtitle> Ingresa los datos del cliente </v-card-subtitle>
                         </v-card-item>
 
                         <v-card-text>
-                            <v-form v-model="valid">
+                            <v-form ref="form" v-model="valid">
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="email" :counter="10" :rules="nameRules" label="Email"
-                                                required></v-text-field>
+                                            <v-text-field v-model="formData.email" label="Email" required></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="contraseña" :counter="10" :rules="nameRules"
-                                                label="password" required></v-text-field>
+                                            <v-text-field v-model="formData.password" label="Contraseña" required type="password"></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="nombre" :rules="emailRules" label="nombre"
-                                                required></v-text-field>
+                                            <v-text-field v-model="formData.name" label="Nombre" required></v-text-field>
                                         </v-col>
                                     </v-row>
+
                                     <v-row>
                                         <v-col>
-                                            <v-text-field v-model="rfc" :rules="emailRules" label="rfc"
-                                                required></v-text-field>
+                                            <v-text-field v-model="formData.rfc" label="RFC" required></v-text-field>
                                         </v-col>
                                         <v-col>
-                                            <v-text-field v-model="contacto" :rules="emailRules" label="contacto"
-                                                required></v-text-field>
+                                            <v-text-field v-model="formData.contacto" label="Contacto" required></v-text-field>
                                         </v-col>
                                         <v-col>
-                                            <v-text-field v-model="telefono" :rules="emailRules" label="telefono"
-                                                required></v-text-field>
+                                            <v-text-field v-model="formData.telefono_contacto" label="Teléfono" required></v-text-field>
                                         </v-col>
                                     </v-row>
+
                                     <v-row>
                                         <v-col>
-                                            <v-text-field v-model="telefono" :rules="emailRules" label="Direccion"
-                                                required></v-text-field>
+                                            <v-text-field v-model="formData.direccion" label="Dirección" required></v-text-field>
                                         </v-col>
                                     </v-row>
+
                                     <v-row>
                                         <v-col>
                                             <v-btn color="primary" @click="save">Enviar</v-btn>
@@ -91,36 +72,67 @@
         </v-layout>
     </v-card>
 </template>
+
 <script>
+import axios from '../config/axios'; // Asegúrate de que esta ruta sea correcta
+
 export default {
     data: () => ({
         drawer: false,
         group: null,
         items: [
-            {
-                title: 'Foo',
-                route: '/home',
-            },
-            {
-                title: 'Bar',
-                route: '/polizas',
-            },
+            { title: 'Clientes', route: '/clientes' },
+            { title: 'Polizas', route: '/polizas' },
         ],
+        valid: false,
+        formData: {
+            name: '',
+            email: '',
+            password: '',
+            rfc: '',
+            contacto: '',
+            telefono_contacto: '',
+            direccion: '',
+            rol: ''
+        }
     }),
-
     watch: {
         group() {
-            this.drawer = false
-        },
+            this.drawer = false;
+        }
     },
-
+    created() {
+        const id = this.$route.params.id;
+        if (id) {
+            this.loadCliente(id);
+        }
+    },
     methods: {
         navigateTo(route) {
             this.$router.push(route);
         },
         save() {
-            console.log('Datos Guardados', this.formData);
+            axios.post('/cliente/guardar', this.formData)
+                .then(response => {
+                    if (this.$refs.form) {
+                        this.$refs.form.reset();
+                    }
+                    this.formData.id = 0;
+                    this.$router.push('/clientes');
+                })
+                .catch(error => {
+                    console.error('Ocurrió un error: ', error);
+                });
         },
-    },
+        loadCliente(id) {
+            axios.get(`/cliente/${id}`)
+                .then(response => {
+                    this.formData = { ...response.data, password: '' };
+                })
+                .catch(error => {
+                    console.error('Ocurrió un error: ', error);
+                });
+        }
+    }
 }
 </script>
