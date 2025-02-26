@@ -21,7 +21,7 @@
                         <v-card-title>Lista de Técnicos</v-card-title>
                         <v-card-subtitle>Aquí puedes administrar todos los técnicos</v-card-subtitle>
                     </v-card-item>
-                    
+
                     <v-card-text>
                         <v-btn color="success" class="mb-4" @click="nuevoCliente">
                             <v-icon left>mdi-plus</v-icon> Nuevo Tecnico
@@ -64,6 +64,7 @@ export default {
                 { title: 'Clientes', route: '/clientes' },
                 { title: 'Polizas', route: '/polizas' },
                 { title: 'Facturas', route: '/facturas' },
+                { title: 'Servicios', route: '/servicios' },
                 { title: 'Técnicos', route: '/tecnicos' }
             ]
         };

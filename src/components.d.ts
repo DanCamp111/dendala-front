@@ -15,11 +15,13 @@ declare module 'vue' {
     Login: typeof import('./components/Login.vue')['default']
     NFactura: typeof import('./components/NFactura.vue')['default']
     NPoliza: typeof import('./components/NPoliza.vue')['default']
+    NServicio: typeof import('./components/NServicio.vue')['default']
     NTecnico: typeof import('./components/NTecnico.vue')['default']
     Poliza: typeof import('./components/NPoliza.vue')['default']
     Polizas: typeof import('./components/Polizas.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Servicios: typeof import('./components/Servicios.vue')['default']
     Tecnicos: typeof import('./components/Tecnicos.vue')['default']
   }
 }
