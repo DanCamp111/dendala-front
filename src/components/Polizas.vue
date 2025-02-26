@@ -84,7 +84,8 @@ export default {
             items: [
                 { title: 'Clientes', route: '/clientes' },
                 { title: 'Polizas', route: '/polizas' },
-                { title: 'Facturas', route: '/facturas' }
+                { title: 'Facturas', route: '/facturas' },
+                { title: 'Técnicos', route: '/tecnicos' }
             ]
         };
     },

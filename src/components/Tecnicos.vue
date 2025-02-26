@@ -3,7 +3,7 @@
         <v-layout>
             <v-app-bar color="primary">
                 <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-                <v-toolbar-title>Clientes</v-toolbar-title>
+                <v-toolbar-title>Tecnicos</v-toolbar-title>
                 <v-spacer></v-spacer>
             </v-app-bar>
 
@@ -18,13 +18,13 @@
             <v-main style="height: 100vh;">
                 <v-card class="mx-auto" elevation="16" max-width="1000">
                     <v-card-item>
-                        <v-card-title>Lista de Clientes</v-card-title>
-                        <v-card-subtitle>Aquí puedes administrar todos los clientes</v-card-subtitle>
+                        <v-card-title>Lista de Técnicos</v-card-title>
+                        <v-card-subtitle>Aquí puedes administrar todos los técnicos</v-card-subtitle>
                     </v-card-item>
-
+                    
                     <v-card-text>
                         <v-btn color="success" class="mb-4" @click="nuevoCliente">
-                            <v-icon left>mdi-plus</v-icon> Nuevo Cliente
+                            <v-icon left>mdi-plus</v-icon> Nuevo Tecnico
                         </v-btn>
 
                         <v-data-table :headers="headers" :items="clientes" item-key="id">
@@ -73,32 +73,32 @@ export default {
     },
     methods: {
         getClientes() {
-            axios.get('clientes')
+            axios.get('tecnicos')
                 .then(response => {
                     this.clientes = response.data;
                 })
                 .catch(error => {
-                    console.error('Error al obtener clientes:', error);
+                    console.error('Error al obtener tecnicos:', error);
                 });
         },
         editCliente(id) {
-            this.$router.push(`/home/${id}`);
+            this.$router.push(`/tecnico/${id}`);
         },
         deleteCliente(id) {
-            if (confirm('¿Estás seguro de eliminar este cliente?')) {
-                axios.delete(`cliente/eliminar/${id}`)
+            if (confirm('¿Estás seguro de eliminar este tecnico?')) {
+                axios.delete(`tecnico/eliminar/${id}`)
                     .then(response => {
                         if (response.data === 'Ok') {
                             this.getClientes();
                         }
                     })
                     .catch(error => {
-                        console.error('Error al eliminar cliente:', error);
+                        console.error('Error al eliminar tecnico:', error);
                     });
             }
         },
         nuevoCliente() {
-            this.$router.push('/home');
+            this.$router.push('/tecnico');
         },
         navigateTo(route) {
             this.$router.push(route);

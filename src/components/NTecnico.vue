@@ -3,7 +3,7 @@
         <v-layout>
             <v-app-bar color="primary">
                 <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-                <v-toolbar-title>Facturas</v-toolbar-title>
+                <v-toolbar-title>Técnicos</v-toolbar-title>
                 <v-spacer></v-spacer>
             </v-app-bar>
 
@@ -19,8 +19,8 @@
                 <v-card-text>
                     <v-card class="mx-auto" elevation="16" max-width="1000">
                         <v-card-item>
-                            <v-card-title> Registro de Factura </v-card-title>
-                            <v-card-subtitle> Ingresa los datos de la factura </v-card-subtitle>
+                            <v-card-title> Registro </v-card-title>
+                            <v-card-subtitle> Ingresa los datos del tecnico </v-card-subtitle>
                         </v-card-item>
 
                         <v-card-text>
@@ -28,29 +28,45 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.fecha" label="Fecha" required
-                                                type="date"></v-text-field>
+                                            <v-text-field v-model="formData.email" label="Email"
+                                                required></v-text-field>
                                         </v-col>
-                                        <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.monto" label="Monto" required
-                                                type="number"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.observaciones"
-                                                label="Observaciones"></v-text-field>
-                                        </v-col>
-                                    </v-row>
 
-                                    <v-row>
-                                        <v-col cols="12" md="6">
-                                            <v-select v-model="formData.id_cliente" :items="clientes" item-value="id"
-                                                item-title="name" label="Seleccionar Cliente" required></v-select>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field v-model="formData.password" label="Contraseña" required
+                                                type="password"></v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="12" md="4">
+                                            <v-text-field v-model="formData.name" label="Nombre"
+                                                required></v-text-field>
                                         </v-col>
                                     </v-row>
 
                                     <v-row>
                                         <v-col>
-                                            <v-btn color="primary" @click="save">Guardar</v-btn>
+                                            <v-text-field v-model="formData.rfc" label="RFC" required></v-text-field>
+                                        </v-col>
+                                        <v-col>
+                                            <v-text-field v-model="formData.contacto" label="Contacto"
+                                                required></v-text-field>
+                                        </v-col>
+                                        <v-col>
+                                            <v-text-field v-model="formData.telefono_contacto" label="Teléfono"
+                                                required></v-text-field>
+                                        </v-col>
+                                    </v-row>
+
+                                    <v-row>
+                                        <v-col>
+                                            <v-text-field v-model="formData.direccion" label="Dirección"
+                                                required></v-text-field>
+                                        </v-col>
+                                    </v-row>
+
+                                    <v-row>
+                                        <v-col>
+                                            <v-btn color="primary" @click="save">Enviar</v-btn>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -64,11 +80,12 @@
 </template>
 
 <script>
-import axios from '../config/axios';
+import axios from '../config/axios'; // Asegúrate de que esta ruta sea correcta
 
 export default {
     data: () => ({
         drawer: false,
+        group: null,
         items: [
             { title: 'Clientes', route: '/clientes' },
             { title: 'Polizas', route: '/polizas' },
@@ -77,66 +94,51 @@ export default {
         ],
         valid: false,
         formData: {
-            fecha: '',
-            monto: '',
-            observaciones: '',
-            id_cliente: null
-        },
-        clientes: []
+            name: '',
+            email: '',
+            password: '',
+            rfc: '',
+            contacto: '',
+            telefono_contacto: '',
+            direccion: '',
+            rol: ''
+        }
     }),
-
-    created() {
-        this.loadClientes();
-        const id = this.$route.params.id;
-        if (id) {
-            this.loadFactura(id);
+    watch: {
+        group() {
+            this.drawer = false;
         }
     },
-
+    created() {
+        const id = this.$route.params.id;
+        if (id) {
+            this.loadCliente(id);
+        }
+    },
     methods: {
-        loadClientes() {
-            axios.get('/clientes')
-                .then(response => {
-                    this.clientes = response.data
-                        .filter(cliente => cliente.rol === 'C') // Filtrar solo clientes con rol "C"
-                        .map(cliente => ({
-                            id: cliente.id,
-                            name: cliente.name
-                        }));
-                })
-                .catch(error => {
-                    console.error('Error al cargar los clientes:', error);
-                });
-        },
         navigateTo(route) {
             this.$router.push(route);
         },
-
         save() {
-            axios.post('/factura/guardar', this.formData)
+            axios.post('/tecnico/guardar', this.formData)
                 .then(response => {
                     if (this.$refs.form) {
                         this.$refs.form.reset();
                     }
-                    this.$router.push('/facturas');
+                    this.formData.id = 0;
+                    this.$router.push('/tecnicos');
                 })
                 .catch(error => {
                     console.error('Ocurrió un error: ', error);
                 });
         },
-
-        loadFactura(id) {
-            axios.get(`/factura/${id}`)
+        loadCliente(id) {
+            axios.get(`/tecnico/${id}`)
                 .then(response => {
-                    this.formData = response.data;
-
-                    // Convertir la fecha al formato adecuado para el input de tipo date
-                    if (this.formData.fecha) {
-                        this.formData.fecha = this.formData.fecha.split(' ')[0]; // Extrae solo la parte "YYYY-MM-DD"
-                    }
+                    this.formData = { ...response.data, password: '' };
                 })
                 .catch(error => {
-                    console.error('Ocurrió un error al cargar la factura: ', error);
+                    console.error('Ocurrió un error: ', error);
                 });
         }
     }
