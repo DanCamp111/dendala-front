@@ -1,13 +1,13 @@
 <template>
     <v-card>
         <v-layout>
-            <v-app-bar color="primary" prominent>
+            <v-app-bar color="primary">
                 <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
                 <v-toolbar-title>Clientes</v-toolbar-title>
                 <v-spacer></v-spacer>
             </v-app-bar>
 
-            <v-navigation-drawer v-model="drawer" location="$vuetify.display.mobile ? 'bottom' : undefined" temporary>
+            <v-navigation-drawer v-model="drawer" temporary>
                 <v-list>
                     <v-list-item v-for="(item, index) in items" :key="index" link @click="navigateTo(item.route)">
                         <v-list-item-title>{{ item.title }}</v-list-item-title>
@@ -15,17 +15,24 @@
                 </v-list>
             </v-navigation-drawer>
 
-            <v-main style="height: 95vh;">
-                <v-card>
-                    <v-card-title class="text-h6">Lista de Clientes</v-card-title>
-                    <v-divider></v-divider>
+            <v-main style="height: 100vh;">
+                <v-card class="mx-auto" elevation="16" max-width="1000">
+                    <v-card-item>
+                        <v-card-title>Lista de Clientes</v-card-title>
+                        <v-card-subtitle>Aquí puedes administrar todos los clientes</v-card-subtitle>
+                    </v-card-item>
+                    
                     <v-card-text>
+                        <v-btn color="success" class="mb-4" @click="nuevoCliente">
+                            <v-icon left>mdi-plus</v-icon> Nuevo Cliente
+                        </v-btn>
+
                         <v-data-table :headers="headers" :items="clientes" item-key="id">
                             <template v-slot:item.actions="{ item }">
                                 <v-btn icon @click="editCliente(item.id)">
                                     <v-icon>mdi-pencil</v-icon>
                                 </v-btn>
-                                <v-btn icon @click="deleteCliente(item.id)">
+                                <v-btn icon color="red" @click="deleteCliente(item.id)">
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
                             </template>
@@ -36,12 +43,13 @@
         </v-layout>
     </v-card>
 </template>
+
 <script>
 import axios from '../config/axios';
 
-export default{
-    data(){
-        return{
+export default {
+    data() {
+        return {
             clientes: [],
             headers: [
                 { title: 'Nombre', value: 'name' },
@@ -49,45 +57,49 @@ export default{
                 { title: 'RFC', value: 'rfc' },
                 { title: 'Contacto', value: 'contacto' },
                 { title: 'Teléfono', value: 'telefono_contacto' },
-                { title: 'Acciones', value: 'actions',sortable: false }
+                { title: 'Acciones', value: 'actions', sortable: false }
             ],
             drawer: false,
-            group: null,
             items: [
-                { title: 'Clientes', route: '/home' },
-                { title: 'Polizas', route: '/polizas' }
-            ],
-            valid: false,
+                { title: 'Clientes', route: '/clientes' },
+                { title: 'Pólizas', route: '/polizas' }
+            ]
         };
     },
-    mounted(){
+    mounted() {
         this.getClientes();
     },
     methods: {
-         getClientes(){
+        getClientes() {
             axios.get('clientes')
                 .then(response => {
                     this.clientes = response.data;
                 })
                 .catch(error => {
-                    console.error(error);
+                    console.error('Error al obtener clientes:', error);
                 });
         },
-        editCliente(id){
-            this.$router.push(`/home/${id}`);
+        editCliente(id) {
+            this.$router.push(`/clientes/${id}`);
         },
-        deleteCliente(id){
+        deleteCliente(id) {
             if (confirm('¿Estás seguro de eliminar este cliente?')) {
                 axios.delete(`cliente/eliminar/${id}`)
-                    .then(response=>{
-                        if(response.data === 'Ok'){
+                    .then(response => {
+                        if (response.data === 'Ok') {
                             this.getClientes();
                         }
                     })
                     .catch(error => {
-                        console.error(error);
+                        console.error('Error al eliminar cliente:', error);
                     });
             }
+        },
+        nuevoCliente() {
+            this.$router.push('/home');
+        },
+        navigateTo(route) {
+            this.$router.push(route);
         }
     }
 };

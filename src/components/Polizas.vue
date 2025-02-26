@@ -7,7 +7,6 @@
                 <v-spacer></v-spacer>
             </v-app-bar>
 
-            <!-- Menú desplegable corregido -->
             <v-navigation-drawer v-model="drawer" temporary>
                 <v-list>
                     <v-list-item v-for="(item, index) in items" :key="index" link @click="navigateTo(item.route)">
@@ -25,7 +24,6 @@
                         </v-card-item>
 
                         <v-card-text>
-                            <!-- Botón "Nueva Póliza" ubicado aquí -->
                             <v-btn color="success" class="mb-4" @click="nuevaPoliza">
                                 <v-icon left>mdi-plus</v-icon> Nueva Póliza
                             </v-btn>
@@ -34,6 +32,21 @@
                                 <template v-slot:item.cliente="{ item }">
                                     {{ item.cliente ? item.cliente.name : 'Sin Cliente' }}
                                 </template>
+
+                                <template v-slot:item.fecha_fin="{ item }">
+                                    <v-tooltip location="top">
+                                        <template v-slot:activator="{ props }">
+                                            <v-chip v-bind="props" :color="getExpirationColor(item.fecha_fin)">
+                                                {{ item.fecha_fin }}
+                                                <v-icon v-if="isNearExpiration(item.fecha_fin)" color="warning">
+                                                    mdi-alert
+                                                </v-icon>
+                                            </v-chip>
+                                        </template>
+                                        <span>{{ getExpirationMessage(item.fecha_fin) }}</span>
+                                    </v-tooltip>
+                                </template>
+
                                 <template v-slot:item.actions="{ item }">
                                     <v-btn icon @click="editPoliza(item.id)">
                                         <v-icon>mdi-pencil</v-icon>
@@ -53,6 +66,7 @@
 
 <script>
 import axios from '../config/axios';
+import { format, differenceInDays } from 'date-fns';
 
 export default {
     data() {
@@ -63,15 +77,14 @@ export default {
                 { title: 'Fecha Inicio', value: 'fecha_inicio' },
                 { title: 'Fecha Fin', value: 'fecha_fin' },
                 { title: 'Precio', value: 'precio' },
-                { title: 'Cliente', value: 'cliente' }, // Se muestra el nombre en vez de ID
+                { title: 'Cliente', value: 'cliente' },
                 { title: 'Acciones', value: 'actions', sortable: false }
             ],
             drawer: false,
             items: [
                 { title: 'Clientes', route: '/clientes' },
                 { title: 'Pólizas', route: '/polizas' }
-            ],
-            valid: false
+            ]
         };
     },
     mounted() {
@@ -108,6 +121,30 @@ export default {
         },
         navigateTo(route) {
             this.$router.push(route);
+        },
+        isNearExpiration(fechaFin) {
+            const today = new Date();
+            const expirationDate = new Date(fechaFin);
+            return differenceInDays(expirationDate, today) <= 7;
+        },
+        getExpirationColor(fechaFin) {
+            const today = new Date();
+            const expirationDate = new Date(fechaFin);
+            if (expirationDate < today) {
+                return "red"; // Vencido
+            }
+            return this.isNearExpiration(fechaFin) ? "warning" : "default";
+        },
+        getExpirationMessage(fechaFin) {
+            const today = new Date();
+            const expirationDate = new Date(fechaFin);
+            if (expirationDate < today) {
+                return "Esta póliza está vencida.";
+            }
+            if (this.isNearExpiration(fechaFin)) {
+                return "Esta póliza está próxima a vencer.";
+            }
+            return "Esta póliza está vigente.";
         }
     }
 };
