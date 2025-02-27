@@ -43,8 +43,23 @@
 
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-select v-model="formData.id_cliente" :items="clientes" item-value="id"
-                                                item-title="name" label="Seleccionar Cliente" required></v-select>
+                                            <v-select v-model="formData.id_cliente" 
+                                                :items="clientes" 
+                                                item-value="id"
+                                                item-title="name" 
+                                                label="Seleccionar Cliente" 
+                                                required
+                                                @update:modelValue="onClienteChange"></v-select>
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="formData.id_servicio"
+                                                :items="serviciosSinPoliza"
+                                                item-value="id"
+                                                item-title="descripcion"
+                                                label="Seleccionar Servicio"
+                                                @update:modelValue="onServicioChange">
+                                            </v-select>
                                         </v-col>
                                     </v-row>
 
@@ -81,9 +96,11 @@ export default {
             fecha: '',
             monto: '',
             observaciones: '',
-            id_cliente: null
+            id_cliente: null,
+            id_servicio: null
         },
-        clientes: []
+        clientes: [],
+        serviciosSinPoliza: []
     }),
 
     created() {
@@ -99,7 +116,7 @@ export default {
             axios.get('/clientes')
                 .then(response => {
                     this.clientes = response.data
-                        .filter(cliente => cliente.rol === 'C') // Filtrar solo clientes con rol "C"
+                        .filter(cliente => cliente.rol === 'C') 
                         .map(cliente => ({
                             id: cliente.id,
                             name: cliente.name
@@ -109,6 +126,34 @@ export default {
                     console.error('Error al cargar los clientes:', error);
                 });
         },
+
+        loadServiciosSinPoliza(id_cliente) {
+            if (!id_cliente) {
+                this.serviciosSinPoliza = [];
+                return;
+            }
+
+            axios.get(`/servicios-sin-poliza/${id_cliente}`)
+                .then(response => {
+                    this.serviciosSinPoliza = response.data.map(servicio => ({
+                        id: servicio.id,
+                        descripcion: `Servicio ${servicio.id} - ${servicio.fecha}`
+                    }));
+                })
+                .catch(error => {
+                    console.error('Error al cargar los servicios sin póliza:', error);
+                });
+        },
+
+        onClienteChange() {
+            this.formData.id_servicio = null;
+            this.loadServiciosSinPoliza(this.formData.id_cliente);
+        },
+
+        onServicioChange() {
+            this.formData.monto = parseFloat(this.formData.monto || 0) + 50;
+        },
+
         navigateTo(route) {
             this.$router.push(route);
         },
@@ -130,10 +175,8 @@ export default {
             axios.get(`/factura/${id}`)
                 .then(response => {
                     this.formData = response.data;
-
-                    // Convertir la fecha al formato adecuado para el input de tipo date
                     if (this.formData.fecha) {
-                        this.formData.fecha = this.formData.fecha.split(' ')[0]; // Extrae solo la parte "YYYY-MM-DD"
+                        this.formData.fecha = this.formData.fecha.split(' ')[0];
                     }
                 })
                 .catch(error => {

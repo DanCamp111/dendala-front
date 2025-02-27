@@ -63,10 +63,6 @@
                                             <v-select v-model="formData.id_poliza" :items="polizas" item-value="id"
                                                 item-title="numero" label="Seleccionar Póliza"></v-select>
                                         </v-col>
-                                        <v-col cols="12" md="6">
-                                            <v-select v-model="formData.id_factura" :items="facturas" item-value="id"
-                                                item-title="numero" label="Seleccionar Factura"></v-select>
-                                        </v-col>
                                     </v-row>
 
                                     <v-row>
@@ -168,26 +164,6 @@ export default {
                 })
                 .catch(error => {
                     console.error('Error al cargar las pólizas:', error);
-                });
-        },
-
-        loadFacturas(id_cliente) {
-            if (!id_cliente) {
-                this.facturas = [];
-                return;
-            }
-
-            axios.get(`/facturas?cliente_id=${id_cliente}`)
-                .then(response => {
-                    this.facturas = response.data
-                        .filter(factura => factura.id_cliente === id_cliente) // También filtramos aquí
-                        .map(factura => ({
-                            id: factura.id,
-                            numero: `Factura #${factura.id}`
-                        }));
-                })
-                .catch(error => {
-                    console.error('Error al cargar las facturas:', error);
                 });
         },
 
