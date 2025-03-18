@@ -6,6 +6,7 @@ import Layouts from 'vite-plugin-vue-layouts'
 import Vue from '@vitejs/plugin-vue'
 import VueRouter from 'unplugin-vue-router/vite'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // Utilities
 import { defineConfig } from 'vite'
@@ -50,6 +51,27 @@ export default defineConfig({
           name: 'Roboto',
           styles: 'wght@100;300;400;500;700;900',
         }],
+      },
+    }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: {
+        name: 'DendalaApplication',
+        short_name: 'Dendala',
+        description: 'Aplicacion de Polizas de Seguros',
+        theme_color: '#ffffff',
+        icons: [
+          {
+            src: 'icons/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: 'icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+        ],
       },
     }),
   ],
