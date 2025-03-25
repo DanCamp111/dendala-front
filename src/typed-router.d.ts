@@ -20,10 +20,19 @@ declare module 'vue-router/auto-routes' {
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/clientes': RouteRecordInfo<'/clientes', '/clientes', Record<never, never>, Record<never, never>>,
+    '/factura/': RouteRecordInfo<'/factura/', '/factura', Record<never, never>, Record<never, never>>,
+    '/factura/[id]': RouteRecordInfo<'/factura/[id]', '/factura/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/facturas': RouteRecordInfo<'/facturas', '/facturas', Record<never, never>, Record<never, never>>,
     '/home/': RouteRecordInfo<'/home/', '/home', Record<never, never>, Record<never, never>>,
     '/home/[id]': RouteRecordInfo<'/home/[id]', '/home/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/poliza/': RouteRecordInfo<'/poliza/', '/poliza', Record<never, never>, Record<never, never>>,
     '/poliza/[id]': RouteRecordInfo<'/poliza/[id]', '/poliza/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/polizas': RouteRecordInfo<'/polizas', '/polizas', Record<never, never>, Record<never, never>>,
+    '/servicio/': RouteRecordInfo<'/servicio/', '/servicio', Record<never, never>, Record<never, never>>,
+    '/servicio/[id]': RouteRecordInfo<'/servicio/[id]', '/servicio/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/servicios': RouteRecordInfo<'/servicios', '/servicios', Record<never, never>, Record<never, never>>,
+    '/tecnico/': RouteRecordInfo<'/tecnico/', '/tecnico', Record<never, never>, Record<never, never>>,
+    '/tecnico/[id]': RouteRecordInfo<'/tecnico/[id]', '/tecnico/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/tecnicos': RouteRecordInfo<'/tecnicos', '/tecnicos', Record<never, never>, Record<never, never>>,
   }
 }

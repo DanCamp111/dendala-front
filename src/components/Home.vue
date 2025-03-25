@@ -28,15 +28,18 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.email" label="Email" required></v-text-field>
+                                            <v-text-field v-model="formData.email" label="Email"
+                                                required></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.password" label="Contraseña" required type="password"></v-text-field>
+                                            <v-text-field v-model="formData.password" label="Contraseña" required
+                                                type="password"></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.name" label="Nombre" required></v-text-field>
+                                            <v-text-field v-model="formData.name" label="Nombre"
+                                                required></v-text-field>
                                         </v-col>
                                     </v-row>
 
@@ -45,16 +48,19 @@
                                             <v-text-field v-model="formData.rfc" label="RFC" required></v-text-field>
                                         </v-col>
                                         <v-col>
-                                            <v-text-field v-model="formData.contacto" label="Contacto" required></v-text-field>
+                                            <v-text-field v-model="formData.contacto" label="Contacto"
+                                                required></v-text-field>
                                         </v-col>
                                         <v-col>
-                                            <v-text-field v-model="formData.telefono_contacto" label="Teléfono" required></v-text-field>
+                                            <v-text-field v-model="formData.telefono_contacto" label="Teléfono"
+                                                required></v-text-field>
                                         </v-col>
                                     </v-row>
 
                                     <v-row>
                                         <v-col>
-                                            <v-text-field v-model="formData.direccion" label="Dirección" required></v-text-field>
+                                            <v-text-field v-model="formData.direccion" label="Dirección"
+                                                required></v-text-field>
                                         </v-col>
                                     </v-row>
 
@@ -83,6 +89,9 @@ export default {
         items: [
             { title: 'Clientes', route: '/clientes' },
             { title: 'Polizas', route: '/polizas' },
+            { title: 'Facturas', route: '/facturas' },
+            { title: 'Servicios', route: '/servicios' },
+            { title: 'Técnicos', route: '/tecnicos' }
         ],
         valid: false,
         formData: {

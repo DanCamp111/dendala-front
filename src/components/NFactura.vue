@@ -3,7 +3,7 @@
         <v-layout>
             <v-app-bar color="primary">
                 <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-                <v-toolbar-title>Pólizas</v-toolbar-title>
+                <v-toolbar-title>Facturas</v-toolbar-title>
                 <v-spacer></v-spacer>
             </v-app-bar>
 
@@ -19,8 +19,8 @@
                 <v-card-text>
                     <v-card class="mx-auto" elevation="16" max-width="1000">
                         <v-card-item>
-                            <v-card-title> Registro de Póliza </v-card-title>
-                            <v-card-subtitle> Ingresa los datos de la póliza </v-card-subtitle>
+                            <v-card-title> Registro de Factura </v-card-title>
+                            <v-card-subtitle> Ingresa los datos de la factura </v-card-subtitle>
                         </v-card-item>
 
                         <v-card-text>
@@ -28,31 +28,38 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.total_horas" label="Total de horas" required
-                                                type="number"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.precio" label="Precio" required
-                                                type="number"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.fecha_inicio" label="Fecha inicio" required
+                                            <v-text-field v-model="formData.fecha" label="Fecha" required
                                                 type="date"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field v-model="formData.monto" label="Monto" required
+                                                type="number"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field v-model="formData.observaciones"
+                                                label="Observaciones"></v-text-field>
                                         </v-col>
                                     </v-row>
 
                                     <v-row>
-                                        <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.fecha_fin" label="Fecha fin" required
-                                                type="date"></v-text-field>
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="formData.id_cliente" 
+                                                :items="clientes" 
+                                                item-value="id"
+                                                item-title="name" 
+                                                label="Seleccionar Cliente" 
+                                                required
+                                                @update:modelValue="onClienteChange"></v-select>
                                         </v-col>
-                                        <v-col cols="12" md="4">
-                                            <v-text-field v-model="formData.observaciones" label="Observaciones"
-                                                required></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" md="4">
-                                            <v-select v-model="formData.id_cliente" :items="clientes" item-value="id"
-                                                item-title="name" label="Seleccionar Cliente" required></v-select>
+
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="formData.id_servicio"
+                                                :items="serviciosSinPoliza"
+                                                item-value="id"
+                                                item-title="descripcion"
+                                                label="Seleccionar Servicio"
+                                                @update:modelValue="onServicioChange">
+                                            </v-select>
                                         </v-col>
                                     </v-row>
 
@@ -86,21 +93,21 @@ export default {
         ],
         valid: false,
         formData: {
-            total_horas: '',
-            precio: '',
-            fecha_inicio: '',
-            fecha_fin: '',
+            fecha: '',
+            monto: '',
             observaciones: '',
-            id_cliente: null
+            id_cliente: null,
+            id_servicio: null
         },
-        clientes: []
+        clientes: [],
+        serviciosSinPoliza: []
     }),
 
     created() {
         this.loadClientes();
         const id = this.$route.params.id;
         if (id) {
-            this.loadPoliza(id);
+            this.loadFactura(id);
         }
     },
 
@@ -109,7 +116,7 @@ export default {
             axios.get('/clientes')
                 .then(response => {
                     this.clientes = response.data
-                        .filter(cliente => cliente.rol === 'C') // Filtrar solo clientes con rol "C"
+                        .filter(cliente => cliente.rol === 'C') 
                         .map(cliente => ({
                             id: cliente.id,
                             name: cliente.name
@@ -119,31 +126,61 @@ export default {
                     console.error('Error al cargar los clientes:', error);
                 });
         },
+
+        loadServiciosSinPoliza(id_cliente) {
+            if (!id_cliente) {
+                this.serviciosSinPoliza = [];
+                return;
+            }
+
+            axios.get(`/servicios-sin-poliza/${id_cliente}`)
+                .then(response => {
+                    this.serviciosSinPoliza = response.data.map(servicio => ({
+                        id: servicio.id,
+                        descripcion: `Servicio ${servicio.id} - ${servicio.fecha}`
+                    }));
+                })
+                .catch(error => {
+                    console.error('Error al cargar los servicios sin póliza:', error);
+                });
+        },
+
+        onClienteChange() {
+            this.formData.id_servicio = null;
+            this.loadServiciosSinPoliza(this.formData.id_cliente);
+        },
+
+        onServicioChange() {
+            this.formData.monto = parseFloat(this.formData.monto || 0) + 50;
+        },
+
         navigateTo(route) {
             this.$router.push(route);
         },
 
         save() {
-            axios.post('/poliza/guardar', this.formData)
+            axios.post('/factura/guardar', this.formData)
                 .then(response => {
                     if (this.$refs.form) {
                         this.$refs.form.reset();
                     }
-                    this.$router.push('/polizas');
+                    this.$router.push('/facturas');
                 })
                 .catch(error => {
                     console.error('Ocurrió un error: ', error);
                 });
         },
 
-        loadPoliza(id) {
-            axios.get(`/poliza/${id}`)
+        loadFactura(id) {
+            axios.get(`/factura/${id}`)
                 .then(response => {
                     this.formData = response.data;
-                    this.formData.id_cliente = response.data.id_cliente;
+                    if (this.formData.fecha) {
+                        this.formData.fecha = this.formData.fecha.split(' ')[0];
+                    }
                 })
                 .catch(error => {
-                    console.error('Ocurrió un error al cargar la póliza: ', error);
+                    console.error('Ocurrió un error al cargar la factura: ', error);
                 });
         }
     }

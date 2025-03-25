@@ -83,7 +83,10 @@ export default {
             drawer: false,
             items: [
                 { title: 'Clientes', route: '/clientes' },
-                { title: 'Pólizas', route: '/polizas' }
+                { title: 'Polizas', route: '/polizas' },
+                { title: 'Facturas', route: '/facturas' },
+                { title: 'Servicios', route: '/servicios' },
+                { title: 'Técnicos', route: '/tecnicos' }
             ]
         };
     },
